@@ -1451,26 +1451,6 @@
 
             document.getElementById('result-e2c').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-
-               function loadRating() {
-            const saved = localStorage.getItem('haitao_rating');
-            if (saved) {
-                const score = parseInt(saved);
-                const stars = document.querySelectorAll('#satisfaction-stars span');
-                stars.forEach((el, index) => {
-                    el.style.opacity = (index + 1 <= score) ? '1' : '0.4';
-                });
-                const messages = {
-                    1: '😞 不满意，哪里不好可以告诉我吗？',
-                    2: '😟 一般般，我会继续改进的',
-                    3: '🙂 还行，有建议可以告诉我',
-                    4: '😊 满意！感谢你的支持 🙏',
-                    5: '🥳 非常满意！太开心了 🎉'
-                };
-                document.getElementById('rating-result').innerHTML = messages[score] || '';
-            }
-        }
-
         // ================================================================
         // 访问计数器
         // ================================================================
