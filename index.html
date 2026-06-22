@@ -678,13 +678,13 @@
 
         <!-- ===== TAB ===== -->
         <div class="tab-bar">
-    <button class="tab-btn active" id="tab-c2e" onclick="switchPage('c2e')">
-        中国 → 欧洲 <span class="sub">寄出</span>
-    </button>
-    <button class="tab-btn" id="tab-e2c" onclick="switchPage('e2c')">
-        欧洲 → 中国 <span class="sub">寄回</span>
-    </button>
-</div>
+            <button class="tab-btn active" id="tab-c2e" onclick="switchPage('c2e')">
+                中国 → 欧洲 <span class="sub">寄出</span>
+            </button>
+            <button class="tab-btn" id="tab-e2c" onclick="switchPage('e2c')">
+                欧洲 → 中国 <span class="sub">寄回</span>
+            </button>
+        </div>
 
         <!-- ============================================================ -->
         <!-- PAGE 1: 中国 → 欧洲                                           -->
@@ -722,7 +722,7 @@
             </div>
 
             <div class="form-group">
-                <label>📦 物品属性<span style="cursor:pointer; font-size:18px; color:#60a5fa;" onclick="showMixTip()">❓</span></label>
+                <label>📦 包裹里装什么 <span style="cursor:pointer; font-size:18px; color:#60a5fa;" onclick="showMixTip()">❓</span></label>
                 <select id="c2e-cargo">
                     <option value="normal">普通物品（衣服/杂货）</option>
                     <option value="food">食品/非处方药</option>
@@ -828,21 +828,22 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 药品风险提示弹窗（隐藏）                                      -->
+    <!-- 混装物品提示弹窗（默认隐藏）                                   -->
     <!-- ============================================================ -->
-    <div id="medicineModal" class="modal-overlay hide">
-        <div class="modal-box">
-            <h3><i class="fa-solid fa-triangle-exclamation"></i> ⚠️ 药品寄送风险提示</h3>
-            <p>
-                根据个人经验，<strong>从中国寄药品到欧洲</strong>风险较高。<br><br>
-                除非您有正规的<strong>药品出口许可证</strong>或相关的<strong>官方批文</strong>，
-                否则包裹很可能被<strong>海关扣留、销毁</strong>，甚至产生罚款。<br><br>
-                <span style="color:#94a3b8;font-size:14px;">建议您提前了解目的地国家的具体规定，谨慎操作。</span>
-            </p>
-            <div class="btn-group">
-                <button class="btn-cancel" onclick="closeMedicineModal()">取消</button>
-                <button class="btn-confirm" onclick="confirmMedicine()">我已了解风险，继续</button>
+    <div id="mixTipModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); justify-content:center; align-items:center; z-index:9999; padding:20px;">
+        <div style="background:#1a2538; border-radius:20px; max-width:460px; width:100%; padding:24px 20px; border:1px solid #3b82f6; box-shadow:0 8px 32px rgba(0,0,0,0.5); max-height:90vh; overflow-y:auto;">
+            <h3 style="color:#e2e8f0; font-size:20px; margin-bottom:12px;">💡 包裹里有多种东西，怎么选？</h3>
+            <div style="font-size:15px; color:#cbd5e1; line-height:1.9;">
+                <p style="margin-bottom:12px;">如果您的包裹里<strong>不止一种</strong>物品（比如同时有衣服、食品、手机），请按下面几条选<strong>最保险</strong>的：</p>
+                <ol style="padding-left:20px; margin-bottom:12px;">
+                    <li><strong>有手机、电池、电子产品</strong> → 请选 <strong>“电池/数码产品”</strong>（最安全，虽然稍贵但不会被卡）。</li>
+                    <li><strong>有药品</strong>（不管有没有别的） → 请选 <strong>“药品”</strong>（海关最严格，选这个最稳妥）。</li>
+                    <li><strong>只有食品和衣服</strong>（没有药品、没有电池） → 请选 <strong>“食品/非处方药”</strong>。</li>
+                    <li><strong>只有衣服、鞋子、包包</strong>（没有别的） → 请选 <strong>“普通物品”</strong>。</li>
+                </ol>
+                <p style="background:#0b0f19; padding:10px 14px; border-radius:8px; color:#94a3b8; font-size:14px; text-align:center;"><strong>简单记：</strong>包裹里有什么“最严”的东西，就选哪个（药品 > 电池 > 食品 > 普通物品）。</p>
             </div>
+            <button onclick="closeMixTip()" style="margin-top:16px; padding:10px 0; width:100%; background:#3b82f6; color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer;">知道了，我懂了</button>
         </div>
     </div>
 
@@ -998,37 +999,39 @@
         // ITEMS (欧洲 → 中国)
         // ================================================================
         function addItem(name = '', category = 'supplements', qty = 1, price = '', weight = '') {
-    const container = document.getElementById('e2c-items');
-    const id = 'item-' + (++itemIdCounter);
+            const container = document.getElementById('e2c-items');
+            const id = 'item-' + (++itemIdCounter);
 
-    const row = document.createElement('div');
-    row.className = 'item-row';
-    row.id = id;
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.id = id;
 
-    let opts = '';
-    for (const [key, label] of Object.entries(TAX_LABELS)) {
-        opts += `<option value="${key}" ${key === category ? 'selected' : ''}>${label}</option>`;
-    }
+            let opts = '';
+            for (const [key, label] of Object.entries(TAX_LABELS)) {
+                opts += `<option value="${key}" ${key === category ? 'selected' : ''}>${label}</option>`;
+            }
 
-    row.innerHTML = `
-        <input type="text" class="e2c-name" placeholder="如：奶粉" value="${name}">
-        <select class="e2c-cat">${opts}</select>
-        <input type="number" class="e2c-qty" value="${qty}" min="1" step="1">
-        <input type="number" class="e2c-price" value="${price}" min="0" step="0.01" placeholder="0.00">
-        <input type="number" class="e2c-wt" value="${weight}" min="0" step="0.1" placeholder="0.0">
-        <button class="btn-del" onclick="removeItem('${id}')"><i class="fa-solid fa-trash-can"></i></button>
-    `;
+            row.innerHTML = `
+                <input type="text" class="e2c-name" placeholder="如：奶粉" value="${name}">
+                <select class="e2c-cat">${opts}</select>
+                <input type="number" class="e2c-qty" value="${qty}" min="1" step="1">
+                <input type="number" class="e2c-price" value="${price}" min="0" step="0.01" placeholder="0.00">
+                <input type="number" class="e2c-wt" value="${weight}" min="0" step="0.1" placeholder="0.0">
+                <button class="btn-del" onclick="removeItem('${id}')"><i class="fa-solid fa-trash-can"></i></button>
+            `;
 
-    container.appendChild(row);
-    updateE2CSummary();
-    saveItemsToLocal();   // ← 保存到本地
-}
-      function removeItem(id) {
-    const el = document.getElementById(id);
-    if (el) el.remove();
-    updateE2CSummary();
-    saveItemsToLocal();   // ← 保存到本地
-}
+            container.appendChild(row);
+            updateE2CSummary();
+            saveItemsToLocal();
+        }
+
+        function removeItem(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+            updateE2CSummary();
+            saveItemsToLocal();
+        }
+
         function updateE2CSummary() {
             let totalVal = 0,
                 totalWt = 0;
@@ -1043,7 +1046,7 @@
             document.getElementById('e2c-total-val').textContent = totalVal.toFixed(2) + ' €';
             document.getElementById('e2c-total-wt').textContent = totalWt.toFixed(2) + ' kg';
             document.getElementById('e2c-total-cny').textContent = (totalVal * EUR_TO_CNY).toFixed(2) + ' 元';
-            saveItemsToLocal();   // ← 每次修改都保存
+            saveItemsToLocal();
         }
 
         // 监听输入变化实时更新
@@ -1054,11 +1057,62 @@
         });
 
         // ================================================================
-        // 药品弹窗
+        // 混装物品提示弹窗
+        // ================================================================
+        function showMixTip() {
+            document.getElementById('mixTipModal').style.display = 'flex';
+        }
+
+        function closeMixTip() {
+            document.getElementById('mixTipModal').style.display = 'none';
+        }
+
+        // 点击弹窗背景（灰色区域）也能关闭
+        document.getElementById('mixTipModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+
+        // ================================================================
+        // 保存 & 恢复物品清单 (localStorage 记忆功能)
+        // ================================================================
+        function saveItemsToLocal() {
+            const rows = document.querySelectorAll('.item-row');
+            const data = [];
+            rows.forEach(row => {
+                const name = row.querySelector('.e2c-name').value || '';
+                const cat = row.querySelector('.e2c-cat').value || 'supplements';
+                const qty = parseInt(row.querySelector('.e2c-qty').value) || 1;
+                const price = row.querySelector('.e2c-price').value || '';
+                const wt = row.querySelector('.e2c-wt').value || '';
+                data.push({ name, cat, qty, price, wt });
+            });
+            localStorage.setItem('e2c_items', JSON.stringify(data));
+        }
+
+        function loadItemsFromLocal() {
+            const saved = localStorage.getItem('e2c_items');
+            if (!saved) return;
+            try {
+                const data = JSON.parse(saved);
+                if (data.length === 0) return;
+                const container = document.getElementById('e2c-items');
+                container.innerHTML = '';
+                data.forEach(item => {
+                    addItem(item.name, item.cat, item.qty, item.price, item.wt);
+                });
+                updateE2CSummary();
+            } catch (e) {
+                // 数据出错就忽略
+            }
+        }
+
+        // ================================================================
+        // 药品风险弹窗
         // ================================================================
         function showMedicineModal(callback) {
             document.getElementById('medicineModal').classList.remove('hide');
-            // 保存当前要执行的操作
             window._medicineCallback = callback;
         }
 
@@ -1091,7 +1145,6 @@
                 return;
             }
 
-            // ===== 药品风险弹窗 =====
             if (cargo === 'medicine') {
                 showMedicineModal(function() {
                     doCompareC2E(country, weight, cargo, l, w, h);
@@ -1112,7 +1165,6 @@
                     `<div class="alert-box"><i class="fa-solid fa-triangle-exclamation"></i> 体积重 ${volW.toFixed(2)} kg > 实重 ${weight.toFixed(2)} kg，将按体积重计费。</div>`;
             }
 
-            // 药品附加警告
             let medWarning = '';
             if (cargo === 'medicine') {
                 medWarning =
@@ -1198,7 +1250,6 @@
             // ===== 智能分箱 (1000 RMB 限值) =====
             const LIMIT_RMB = 1000;
             const packages = [];
-            // 按价值降序
             items.sort((a, b) => (b.price * EUR_TO_CNY) - (a.price * EUR_TO_CNY));
 
             items.forEach(item => {
@@ -1228,7 +1279,6 @@
                 pkg.items.forEach(it => { pkgWt += it.wt || 0.4; });
                 totalWtEst += pkgWt;
 
-                // 计算税费
                 let taxCNY = 0;
                 pkg.items.forEach(it => {
                     const rate = TAX_RATES[it.cat] || 0.13;
@@ -1261,7 +1311,7 @@
                 `;
             });
 
-            // ===== 比价渠道 (基于总重量和分箱数量) =====
+            // ===== 比价渠道 =====
             let routeHtml = '';
             const pkgCount = packages.length;
             const totalWt = totalWtEst;
@@ -1289,7 +1339,6 @@
                     }
                     priceEUR = perPkgPrice * pkgCount;
                     if (c.type === '华人快递') {
-                        // 包税
                         priceEUR += 0;
                     } else {
                         priceEUR += totalTaxEUR;
@@ -1321,122 +1370,52 @@
             // ===== 合并输出 =====
             const resultContainer = document.getElementById('e2c-results');
             resultContainer.innerHTML = `
-    <div style="background: #1a2538; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; border-left: 4px solid #3b82f6;">
-        <div style="font-size: 14px; color: #cbd5e1; line-height: 1.7;">
-            💡 <strong>为什么分成几个包裹？</strong> 
-            中国海关规定，单包裹价值超过 <strong>1000元</strong> 可能要缴行邮税。 
-            系统自动把商品拆成多个低于1000元的包裹，帮您 <strong>合理避税、省钱省心</strong>。
-            <span style="display:inline-block; margin-top:4px; color: #94a3b8; font-size:13px;">
-                👇 下面列出了每个包裹的明细，以及各渠道的运费对比，选最便宜的就行。
-            </span>
-        </div>
-    </div>
-    <div style="margin-bottom:16px;">
-        <div style="font-size:14px;color:#94a3b8;margin-bottom:6px;">📦 共拆分为 <strong style="color:#e2e8f0;">${pkgCount}</strong> 个包裹，总预估重量 <strong style="color:#e2e8f0;">${totalWt.toFixed(1)} kg</strong></div>
-    </div>
-    ${splitHtml}
-    <div style="margin-top:20px;border-top:1px solid #1e2a3d;padding-top:16px;">
-        <h4 style="color:#e2e8f0;margin-bottom:12px;font-size:16px;">🚚 各渠道比价</h4>
-        ${routeHtml}
-        <!-- ✅ 大白话小贴士插在这里 -->
-        <div style="background: #1a2538; border-radius: 12px; padding: 14px 16px; margin-top: 16px; border-left: 4px solid #60a5fa;">
-            <div style="font-size: 14px; color: #cbd5e1; line-height: 1.8;">
-                <strong style="color: #e2e8f0;">📖 简单说一下：</strong>
-                <span style="display:block; margin-top:2px;">
-                    ✅ <strong style="color: #e2e8f0;">“包税”</strong> — 就是一次性付清，后面不会再让你补交任何钱。
-                </span>
-                <span style="display:block;">
-                    ✅ <strong style="color: #e2e8f0;">“清关率%”</strong> — 说白了，就是包裹能顺利送到你家人手里的成功率。
-                </span>
-                <span style="display:block; margin-top:4px; color: #64748b; font-size: 13px;">
-                    💡 选“包税”的最省心，一次性搞定，没有隐藏费用。
-                </span>
-            </div>
-        </div>
-        <!-- 小贴士结束 -->
-    </div>
-`;
-            // 滚动到结果区域
+                <div style="background: #1a2538; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; border-left: 4px solid #3b82f6;">
+                    <div style="font-size: 14px; color: #cbd5e1; line-height: 1.7;">
+                        💡 <strong>为什么分成几个包裹？</strong>
+                        中国海关规定，单包裹价值超过 <strong>1000元</strong> 可能要缴行邮税。
+                        系统自动把商品拆成多个低于1000元的包裹，帮您 <strong>合理避税、省钱省心</strong>。
+                        <span style="display:inline-block; margin-top:4px; color: #94a3b8; font-size:13px;">
+                            👇 下面列出了每个包裹的明细，以及各渠道的运费对比，选最便宜的就行。
+                        </span>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:14px;color:#94a3b8;margin-bottom:6px;">📦 共拆分为 <strong style="color:#e2e8f0;">${pkgCount}</strong> 个包裹，总预估重量 <strong style="color:#e2e8f0;">${totalWt.toFixed(1)} kg</strong></div>
+                </div>
+                ${splitHtml}
+                <div style="margin-top:20px;border-top:1px solid #1e2a3d;padding-top:16px;">
+                    <h4 style="color:#e2e8f0;margin-bottom:12px;font-size:16px;">🚚 各渠道比价</h4>
+                    ${routeHtml}
+                    <div style="background: #1a2538; border-radius: 12px; padding: 14px 16px; margin-top: 16px; border-left: 4px solid #60a5fa;">
+                        <div style="font-size: 14px; color: #cbd5e1; line-height: 1.8;">
+                            <strong style="color: #e2e8f0;">📖 简单说一下：</strong>
+                            <span style="display:block; margin-top:2px;">
+                                ✅ <strong style="color: #e2e8f0;">“包税”</strong> — 就是一次性付清，后面不会再让你补交任何钱。
+                            </span>
+                            <span style="display:block;">
+                                ✅ <strong style="color: #e2e8f0;">“清关率”</strong> — 说白了，就是包裹能顺利送到你家人手里的成功率。
+                            </span>
+                            <span style="display:block; margin-top:4px; color: #64748b; font-size: 13px;">
+                                💡 选“包税”的最省心，一次性搞定，没有隐藏费用。
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
             document.getElementById('result-e2c').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // ================================================================
-        // INIT: 默认添加一行空物品 (欧洲→中国)
+        // INIT: 默认添加一行空物品 + 恢复记忆
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
-    // 先尝试恢复保存的数据
-    loadItemsFromLocal();
-    // 如果没有任何物品，默认加一行空的
-    if (document.querySelectorAll('.item-row').length === 0) {
-        addItem('', 'supplements', 1, '', '');
-    }
-});
-    </script>
-<!-- 弹窗（默认隐藏） -->
-<div id="mixTipModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); justify-content:center; align-items:center; z-index:9999; padding:20px;">
-    <div style="background:#1a2538; border-radius:20px; max-width:460px; width:100%; padding:24px 20px; border:1px solid #3b82f6; box-shadow:0 8px 32px rgba(0,0,0,0.5); max-height:90vh; overflow-y:auto;">
-        <h3 style="color:#e2e8f0; font-size:20px; margin-bottom:12px;">💡 包裹里有多种东西，怎么选？</h3>
-        <div style="font-size:15px; color:#cbd5e1; line-height:1.9;">
-            <p style="margin-bottom:12px;">如果您的包裹里<strong>不止一种</strong>物品（比如同时有衣服、食品、手机），请按下面几条选<strong>最保险</strong>的：</p >
-            <ol style="padding-left:20px; margin-bottom:12px;">
-                <li><strong>有手机、电池、电子产品</strong> → 请选 <strong>“电池/数码产品”</strong>（最安全，虽然稍贵但不会被卡）。</li>
-                <li><strong>有药品</strong>（不管有没有别的） → 请选 <strong>“药品”</strong>（海关最严格，选这个最稳妥）。</li>
-                <li><strong>只有食品和衣服</strong>（没有药品、没有电池） → 请选 <strong>“食品/非处方药”</strong>。</li>
-                <li><strong>只有衣服、鞋子、包包</strong>（没有别的） → 请选 <strong>“普通物品”</strong>。</li>
-            </ol>
-            <p style="background:#0b0f19; padding:10px 14px; border-radius:8px; color:#94a3b8; font-size:14px; text-align:center;"><strong>简单记：</strong>包裹里有什么“最严”的东西，就选哪个（药品 > 电池 > 食品 > 普通物品）。</p >
-        </div>
-        <button onclick="closeMixTip()" style="margin-top:16px; padding:10px 0; width:100%; background:#3b82f6; color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer;">知道了，我懂了</button>
-    </div>
-</div>
-// 保存物品清单到浏览器本地
-function saveItemsToLocal() {
-    const rows = document.querySelectorAll('.item-row');
-    const data = [];
-    rows.forEach(row => {
-        const name = row.querySelector('.e2c-name').value || '';
-        const cat = row.querySelector('.e2c-cat').value || 'supplements';
-        const qty = parseInt(row.querySelector('.e2c-qty').value) || 1;
-        const price = row.querySelector('.e2c-price').value || '';
-        const wt = row.querySelector('.e2c-wt').value || '';
-        data.push({ name, cat, qty, price, wt });
-    });
-    localStorage.setItem('e2c_items', JSON.stringify(data));
-}
-
-// 页面加载时恢复物品清单
-function loadItemsFromLocal() {
-    const saved = localStorage.getItem('e2c_items');
-    if (!saved) return;
-    try {
-        const data = JSON.parse(saved);
-        if (data.length === 0) return;
-        // 清空现有物品
-        const container = document.getElementById('e2c-items');
-        container.innerHTML = '';
-        // 重新生成
-        data.forEach(item => {
-            addItem(item.name, item.cat, item.qty, item.price, item.wt);
+            loadItemsFromLocal();
+            if (document.querySelectorAll('.item-row').length === 0) {
+                addItem('', 'supplements', 1, '', '');
+            }
         });
-        // 重新计算总额
-        updateE2CSummary();
-    } catch (e) {
-        // 数据出错就忽略
-    }
-}
-<script>
-    function showMixTip() {
-        document.getElementById('mixTipModal').style.display = 'flex';
-    }
-    function closeMixTip() {
-        document.getElementById('mixTipModal').style.display = 'none';
-    }
-    // 点击弹窗背景（灰色区域）也能关闭
-    document.getElementById('mixTipModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.style.display = 'none';
-        }
-    });
-</script>
+    </script>
 </body>
-</html>
+</html> 
