@@ -1043,6 +1043,7 @@
             document.getElementById('e2c-total-val').textContent = totalVal.toFixed(2) + ' €';
             document.getElementById('e2c-total-wt').textContent = totalWt.toFixed(2) + ' kg';
             document.getElementById('e2c-total-cny').textContent = (totalVal * EUR_TO_CNY).toFixed(2) + ' 元';
+            saveItemsToLocal();   // ← 每次修改都保存
         }
 
         // 监听输入变化实时更新
@@ -1363,8 +1364,13 @@
         // INIT: 默认添加一行空物品 (欧洲→中国)
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
-            addItem('', 'supplements', 1, '', '');
-        });
+    // 先尝试恢复保存的数据
+    loadItemsFromLocal();
+    // 如果没有任何物品，默认加一行空的
+    if (document.querySelectorAll('.item-row').length === 0) {
+        addItem('', 'supplements', 1, '', '');
+    }
+});
     </script>
 <!-- 弹窗（默认隐藏） -->
 <div id="mixTipModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); justify-content:center; align-items:center; z-index:9999; padding:20px;">
@@ -1383,7 +1389,41 @@
         <button onclick="closeMixTip()" style="margin-top:16px; padding:10px 0; width:100%; background:#3b82f6; color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer;">知道了，我懂了</button>
     </div>
 </div>
+// 保存物品清单到浏览器本地
+function saveItemsToLocal() {
+    const rows = document.querySelectorAll('.item-row');
+    const data = [];
+    rows.forEach(row => {
+        const name = row.querySelector('.e2c-name').value || '';
+        const cat = row.querySelector('.e2c-cat').value || 'supplements';
+        const qty = parseInt(row.querySelector('.e2c-qty').value) || 1;
+        const price = row.querySelector('.e2c-price').value || '';
+        const wt = row.querySelector('.e2c-wt').value || '';
+        data.push({ name, cat, qty, price, wt });
+    });
+    localStorage.setItem('e2c_items', JSON.stringify(data));
+}
 
+// 页面加载时恢复物品清单
+function loadItemsFromLocal() {
+    const saved = localStorage.getItem('e2c_items');
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        if (data.length === 0) return;
+        // 清空现有物品
+        const container = document.getElementById('e2c-items');
+        container.innerHTML = '';
+        // 重新生成
+        data.forEach(item => {
+            addItem(item.name, item.cat, item.qty, item.price, item.wt);
+        });
+        // 重新计算总额
+        updateE2CSummary();
+    } catch (e) {
+        // 数据出错就忽略
+    }
+}
 <script>
     function showMixTip() {
         document.getElementById('mixTipModal').style.display = 'flex';
