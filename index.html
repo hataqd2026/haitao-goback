@@ -1320,7 +1320,8 @@
             // ===== 合并输出 =====
             const resultContainer = document.getElementById('e2c-results');
             resultContainer.innerHTML = `
-              <div style="background: #1a2538; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; border-left: 4px solid #3b82f6;">
+             resultContainer.innerHTML = `
+    <div style="background: #1a2538; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; border-left: 4px solid #3b82f6;">
         <div style="font-size: 14px; color: #cbd5e1; line-height: 1.7;">
             💡 <strong>为什么分成几个包裹？</strong> 
             中国海关规定，单包裹价值超过 <strong>1000元</strong> 可能要缴行邮税。 
@@ -1337,6 +1338,22 @@
     <div style="margin-top:20px;border-top:1px solid #1e2a3d;padding-top:16px;">
         <h4 style="color:#e2e8f0;margin-bottom:12px;font-size:16px;">🚚 各渠道比价</h4>
         ${routeHtml}
+        <!-- ✅ 大白话小贴士插在这里 -->
+        <div style="background: #1a2538; border-radius: 12px; padding: 14px 16px; margin-top: 16px; border-left: 4px solid #60a5fa;">
+            <div style="font-size: 14px; color: #cbd5e1; line-height: 1.8;">
+                <strong style="color: #e2e8f0;">📖 简单说一下：</strong>
+                <span style="display:block; margin-top:2px;">
+                    ✅ <strong style="color: #e2e8f0;">“包税”</strong> — 就是一次性付清，后面不会再让你补交任何钱。
+                </span>
+                <span style="display:block;">
+                    ✅ <strong style="color: #e2e8f0;">“清关率”</strong> — 说白了，就是包裹能顺利送到你家人手里的成功率。
+                </span>
+                <span style="display:block; margin-top:4px; color: #64748b; font-size: 13px;">
+                    💡 选“包税”的最省心，一次性搞定，没有隐藏费用。
+                </span>
+            </div>
+        </div>
+        <!-- 小贴士结束 -->
     </div>
 `;
             // 滚动到结果区域
