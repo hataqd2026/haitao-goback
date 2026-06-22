@@ -821,12 +821,31 @@
             </div>
         </div>
 
-        <!-- ===== 反馈按钮（腾讯问卷版） ===== -->
+        <!-- ============================================================ -->
+        <!-- 反馈 & 满意度 & 访问计数                                       -->
+        <!-- ============================================================ -->
+
+        <!-- 满意度笑脸（放在最上面） -->
         <div style="background: #1a2538; border-radius: 16px; padding: 18px 20px; margin-top: 24px; border: 1px solid #1e2a3d; text-align: center;">
-            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 12px;">
-                💬 觉得工具好用吗？有什么建议？
+            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 8px;">
+                💬 用完之后，觉得怎么样？
             </div>
-            <a href="https://wj.qq.com/s/27103062/16be/" target="_blank" style="display: inline-block; padding: 12px 40px; background: #3b82f6; color: #fff; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: 0.2s;">
+            <div id="satisfaction-stars" style="display: flex; justify-content: center; gap: 12px; font-size: 32px; cursor: pointer; margin: 6px 0;">
+                <span data-score="1" onclick="rateTool(1)" style="transition: 0.2s; opacity: 0.4;">😞</span>
+                <span data-score="2" onclick="rateTool(2)" style="transition: 0.2s; opacity: 0.4;">😟</span>
+                <span data-score="3" onclick="rateTool(3)" style="transition: 0.2s; opacity: 0.4;">🙂</span>
+                <span data-score="4" onclick="rateTool(4)" style="transition: 0.2s; opacity: 0.4;">😊</span>
+                <span data-score="5" onclick="rateTool(5)" style="transition: 0.2s; opacity: 0.4;">🥳</span>
+            </div>
+            <div id="rating-result" style="font-size: 13px; color: #94a3b8; margin-top: 4px; min-height: 22px;"></div>
+        </div>
+
+        <!-- 反馈按钮（腾讯问卷） -->
+        <div style="background: #1a2538; border-radius: 16px; padding: 18px 20px; margin-top: 16px; border: 1px solid #1e2a3d; text-align: center;">
+            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 12px;">
+                📝 想详细说几句？点这里填反馈
+            </div>
+            <a href="https://wj.qq.com/s/你的问卷ID" target="_blank" style="display: inline-block; padding: 12px 40px; background: #3b82f6; color: #fff; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: 0.2s;">
                 📝 点这里反馈（1分钟）
             </a>
             <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
@@ -834,9 +853,12 @@
             </div>
         </div>
 
-        <!-- ===== FOOTER ===== -->
+        <!-- ===== FOOTER + 访问计数 ===== -->
         <div style="margin-top:28px;padding-top:16px;border-top:1px solid #1e2a3d;text-align:center;font-size:13px;color:#64748b;">
             © 2026 Haitao &amp; Go Back · 简洁 · 免费 · 中欧物流比价
+            <span style="margin-left: 12px; font-size: 12px; color: #64748b;">
+                📊 已有 <span id="visit-count">0</span> 人使用
+            </span>
         </div>
     </div>
 
@@ -1431,6 +1453,61 @@
         }
 
         // ================================================================
+        // 满意度评分（直接点，不用跳转）
+        // ================================================================
+        function rateTool(score) {
+            localStorage.setItem('haitao_rating', score);
+            const resultDiv = document.getElementById('rating-result');
+            const stars = document.querySelectorAll('#satisfaction-stars span');
+
+            stars.forEach((el, index) => {
+                el.style.opacity = (index + 1 <= score) ? '1' : '0.4';
+            });
+
+            const messages = {
+                1: '😞 不满意，哪里不好可以告诉我吗？',
+                2: '😟 一般般，我会继续改进的',
+                3: '🙂 还行，有建议可以告诉我',
+                4: '😊 满意！感谢你的支持 🙏',
+                5: '🥳 非常满意！太开心了 🎉'
+            };
+            resultDiv.innerHTML = messages[score] || '感谢反馈！';
+        }
+
+        function loadRating() {
+            const saved = localStorage.getItem('haitao_rating');
+            if (saved) {
+                const score = parseInt(saved);
+                const stars = document.querySelectorAll('#satisfaction-stars span');
+                stars.forEach((el, index) => {
+                    el.style.opacity = (index + 1 <= score) ? '1' : '0.4';
+                });
+                const messages = {
+                    1: '😞 不满意，哪里不好可以告诉我吗？',
+                    2: '😟 一般般，我会继续改进的',
+                    3: '🙂 还行，有建议可以告诉我',
+                    4: '😊 满意！感谢你的支持 🙏',
+                    5: '🥳 非常满意！太开心了 🎉'
+                };
+                document.getElementById('rating-result').innerHTML = messages[score] || '';
+            }
+        }
+
+        // ================================================================
+        // 访问计数器
+        // ================================================================
+        function updateVisitCount() {
+            let count = localStorage.getItem('haitao_visit_count');
+            if (!count) {
+                count = 1;
+            } else {
+                count = parseInt(count) + 1;
+            }
+            localStorage.setItem('haitao_visit_count', count);
+            document.getElementById('visit-count').textContent = count;
+        }
+
+        // ================================================================
         // INIT
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
@@ -1438,6 +1515,8 @@
             if (document.querySelectorAll('.item-row').length === 0) {
                 addItem('', 'supplements', 1, '', '');
             }
+            loadRating();
+            updateVisitCount();
         });
     </script>
 
