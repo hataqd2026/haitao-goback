@@ -821,16 +821,35 @@
             </div>
         </div>
 
+        <!-- ===== 反馈区域 ===== -->
+        <div style="background: #1a2538; border-radius: 16px; padding: 18px 20px; margin-top: 24px; border: 1px solid #1e2a3d;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <span style="font-size: 20px;">💬</span>
+                <h4 style="color: #e2e8f0; font-size: 16px; font-weight: 600; margin: 0;">随手反馈</h4>
+                <span style="font-size: 12px; background: #25345a; padding: 2px 10px; border-radius: 20px; color: #94a3b8;">1分钟搞定</span>
+            </div>
+            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 12px; line-height: 1.6;">
+                你觉得这个工具怎么样？有没有解决你的问题？哪方面还需要改进？随便说几句，你的建议会帮我做得更好。
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
+                <span style="background: #0b0f19; padding: 4px 14px; border-radius: 30px; font-size: 13px; color: #60a5fa; border: 1px solid #1e2a3d; cursor: pointer;" onclick="document.getElementById('feedback-input').value='📦 好用，省钱了';">📦 好用，省钱了</span>
+                <span style="background: #0b0f19; padding: 4px 14px; border-radius: 30px; font-size: 13px; color: #60a5fa; border: 1px solid #1e2a3d; cursor: pointer;" onclick="document.getElementById('feedback-input').value='🤔 还能更好';">🤔 还能更好</span>
+                <span style="background: #0b0f19; padding: 4px 14px; border-radius: 30px; font-size: 13px; color: #60a5fa; border: 1px solid #1e2a3d; cursor: pointer;" onclick="document.getElementById('feedback-input').value='🆕 想要新功能';">🆕 想要新功能</span>
+                <span style="background: #0b0f19; padding: 4px 14px; border-radius: 30px; font-size: 13px; color: #60a5fa; border: 1px solid #1e2a3d; cursor: pointer;" onclick="document.getElementById('feedback-input').value='🐞 发现bug';">🐞 发现bug</span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch;">
+                <input type="text" id="feedback-input" placeholder="随便说两句，比如：希望增加XX功能..." style="flex: 1; min-width: 180px; padding: 12px 14px; border-radius: 10px; border: 1px solid #1e2a3d; background: #0b0f19; color: #e2e8f0; font-size: 15px; outline: none;">
+                <button onclick="sendFeedback()" style="padding: 12px 28px; background: #3b82f6; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; white-space: nowrap;">📤 发送</button>
+            </div>
+            <div id="feedback-result" style="font-size: 13px; margin-top: 8px; min-height: 20px; color: #94a3b8;"></div>
+        </div>
+
         <!-- ===== FOOTER ===== -->
-        <!-- 👇 在这里插入反馈区域的代码 -->
-<div style="background: #1a2538; ...">
-    ... 反馈区域内容 ...
-</div>
-<div style="margin-top:28px;padding-top:16px;...">
-    © 2026 Haitao &amp; Go Back · 简洁 · 免费 · 中欧物流比价
         <div style="margin-top:28px;padding-top:16px;border-top:1px solid #1e2a3d;text-align:center;font-size:13px;color:#64748b;">
             © 2026 Haitao &amp; Go Back · 简洁 · 免费 · 中欧物流比价
         </div>
+    </div>
+
     <!-- ============================================================ -->
     <!-- 混装物品提示弹窗（默认隐藏）                                   -->
     <!-- ============================================================ -->
@@ -848,6 +867,25 @@
                 <p style="background:#0b0f19; padding:10px 14px; border-radius:8px; color:#94a3b8; font-size:14px; text-align:center;"><strong>简单记：</strong>包裹里有什么“最严”的东西，就选哪个（药品 > 电池 > 食品 > 普通物品）。</p>
             </div>
             <button onclick="closeMixTip()" style="margin-top:16px; padding:10px 0; width:100%; background:#3b82f6; color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer;">知道了，我懂了</button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 药品风险弹窗（默认隐藏）                                       -->
+    <!-- ============================================================ -->
+    <div id="medicineModal" class="modal-overlay hide">
+        <div class="modal-box">
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> ⚠️ 药品寄送风险提示</h3>
+            <p>
+                根据个人经验，<strong>从中国寄药品到欧洲</strong>风险较高。<br><br>
+                除非您有正规的<strong>药品出口许可证</strong>或相关的<strong>官方批文</strong>，
+                否则包裹很可能被<strong>海关扣留、销毁</strong>，甚至产生罚款。<br><br>
+                <span style="color:#94a3b8;font-size:14px;">建议您提前了解目的地国家的具体规定，谨慎操作。</span>
+            </p>
+            <div class="btn-group">
+                <button class="btn-cancel" onclick="closeMedicineModal()">取消</button>
+                <button class="btn-confirm" onclick="confirmMedicine()">我已了解风险，继续</button>
+            </div>
         </div>
     </div>
 
@@ -987,7 +1025,7 @@
         // STATE
         // ================================================================
         let itemIdCounter = 0;
-        let pendingCargo = null; // 用于药品弹窗
+        let pendingCargo = null;
 
         // ================================================================
         // TAB SWITCH
@@ -1053,7 +1091,6 @@
             saveItemsToLocal();
         }
 
-        // 监听输入变化实时更新
         document.addEventListener('input', function(e) {
             if (e.target.closest('.item-row')) {
                 updateE2CSummary();
@@ -1071,7 +1108,6 @@
             document.getElementById('mixTipModal').style.display = 'none';
         }
 
-        // 点击弹窗背景（灰色区域）也能关闭
         document.getElementById('mixTipModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 this.style.display = 'none';
@@ -1107,9 +1143,7 @@
                     addItem(item.name, item.cat, item.qty, item.price, item.wt);
                 });
                 updateE2CSummary();
-            } catch (e) {
-                // 数据出错就忽略
-            }
+            } catch (e) {}
         }
 
         // ================================================================
@@ -1233,7 +1267,6 @@
             const origin = document.getElementById('e2c-origin').value;
             const region = REGION_FACTOR[origin] || { factor: 1.0, offset: 0 };
 
-            // 收集物品
             const items = [];
             rows.forEach(row => {
                 const name = row.querySelector('.e2c-name').value.trim() || '未命名';
@@ -1251,7 +1284,6 @@
                 return;
             }
 
-            // ===== 智能分箱 (1000 RMB 限值) =====
             const LIMIT_RMB = 1000;
             const packages = [];
             items.sort((a, b) => (b.price * EUR_TO_CNY) - (a.price * EUR_TO_CNY));
@@ -1271,7 +1303,6 @@
                 }
             });
 
-            // ===== 渲染分箱结果 =====
             let splitHtml = '';
             let totalTaxEUR = 0;
             let totalWtEst = 0;
@@ -1315,7 +1346,6 @@
                 `;
             });
 
-            // ===== 比价渠道 =====
             let routeHtml = '';
             const pkgCount = packages.length;
             const totalWt = totalWtEst;
@@ -1371,7 +1401,6 @@
                 `;
             });
 
-            // ===== 合并输出 =====
             const resultContainer = document.getElementById('e2c-results');
             resultContainer.innerHTML = `
                 <div style="background: #1a2538; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; border-left: 4px solid #3b82f6;">
@@ -1398,7 +1427,7 @@
                                 ✅ <strong style="color: #e2e8f0;">“包税”</strong> — 就是一次性付清，后面不会再让你补交任何钱。
                             </span>
                             <span style="display:block;">
-                                ✅ <strong style="color: #e2e8f0;">“清关率%”</strong> — 说白了，就是包裹能顺利送到你家人手里的成功率。
+                                ✅ <strong style="color: #e2e8f0;">“清关率”</strong> — 说白了，就是包裹能顺利送到你家人手里的成功率。
                             </span>
                             <span style="display:block; margin-top:4px; color: #64748b; font-size: 13px;">
                                 💡 选“包税”的最省心，一次性搞定，没有隐藏费用。
@@ -1412,7 +1441,37 @@
         }
 
         // ================================================================
-        // INIT: 默认添加一行空物品 + 恢复记忆
+        // 反馈功能（邮箱已配置为 haitao.goback@foxmail.com）
+        // ================================================================
+        function sendFeedback() {
+            const input = document.getElementById('feedback-input');
+            const msg = input.value.trim();
+            const resultDiv = document.getElementById('feedback-result');
+
+            if (!msg) {
+                resultDiv.innerHTML = '<span style="color: #fbbf24;">⚠️ 写点什么再发送吧～</span>';
+                return;
+            }
+
+            if (msg.length < 2) {
+                resultDiv.innerHTML = '<span style="color: #fbbf24;">😅 多说两句嘛，你的建议很宝贵</span>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<span style="color: #94a3b8;">⏳ 发送中...</span>';
+
+            const email = 'haitao.goback@foxmail.com';
+            const subject = encodeURIComponent('Haitao & Go Back 用户反馈');
+            const body = encodeURIComponent('用户留言：\n' + msg + '\n\n—— 来自您的工具用户');
+
+            setTimeout(() => {
+                window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+                resultDiv.innerHTML = '<span style="color: #34d399;">✅ 已打开邮件客户端，点击发送即可！</span>';
+            }, 300);
+        }
+
+        // ================================================================
+        // INIT
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
             loadItemsFromLocal();
