@@ -1366,6 +1366,37 @@
             addItem('', 'supplements', 1, '', '');
         });
     </script>
+<!-- 弹窗（默认隐藏） -->
+<div id="mixTipModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); justify-content:center; align-items:center; z-index:9999; padding:20px;">
+    <div style="background:#1a2538; border-radius:20px; max-width:460px; width:100%; padding:24px 20px; border:1px solid #3b82f6; box-shadow:0 8px 32px rgba(0,0,0,0.5); max-height:90vh; overflow-y:auto;">
+        <h3 style="color:#e2e8f0; font-size:20px; margin-bottom:12px;">💡 包裹里有多种东西，怎么选？</h3>
+        <div style="font-size:15px; color:#cbd5e1; line-height:1.9;">
+            <p style="margin-bottom:12px;">如果您的包裹里<strong>不止一种</strong>物品（比如同时有衣服、食品、手机），请按下面几条选<strong>最保险</strong>的：</p >
+            <ol style="padding-left:20px; margin-bottom:12px;">
+                <li><strong>有手机、电池、电子产品</strong> → 请选 <strong>“电池/数码产品”</strong>（最安全，虽然稍贵但不会被卡）。</li>
+                <li><strong>有药品</strong>（不管有没有别的） → 请选 <strong>“药品”</strong>（海关最严格，选这个最稳妥）。</li>
+                <li><strong>只有食品和衣服</strong>（没有药品、没有电池） → 请选 <strong>“食品/非处方药”</strong>。</li>
+                <li><strong>只有衣服、鞋子、包包</strong>（没有别的） → 请选 <strong>“普通物品”</strong>。</li>
+            </ol>
+            <p style="background:#0b0f19; padding:10px 14px; border-radius:8px; color:#94a3b8; font-size:14px; text-align:center;"><strong>简单记：</strong>包裹里有什么“最严”的东西，就选哪个（药品 > 电池 > 食品 > 普通物品）。</p >
+        </div>
+        <button onclick="closeMixTip()" style="margin-top:16px; padding:10px 0; width:100%; background:#3b82f6; color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer;">知道了，我懂了</button>
+    </div>
+</div>
 
+<script>
+    function showMixTip() {
+        document.getElementById('mixTipModal').style.display = 'flex';
+    }
+    function closeMixTip() {
+        document.getElementById('mixTipModal').style.display = 'none';
+    }
+    // 点击弹窗背景（灰色区域）也能关闭
+    document.getElementById('mixTipModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
