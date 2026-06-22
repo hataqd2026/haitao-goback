@@ -845,7 +845,7 @@
             <div style="font-size: 14px; color: #94a3b8; margin-bottom: 12px;">
                 📝 想详细说几句？点这里填反馈
             </div>
-            <a href="https://wj.qq.com/s/27103062/16be/" target="_blank" style="display: inline-block; padding: 12px 40px; background: #3b82f6; color: #fff; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: 0.2s;">
+            <a href="https://wj.qq.com/s/你的问卷ID" target="_blank" style="display: inline-block; padding: 12px 40px; background: #3b82f6; color: #fff; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: 0.2s;">
                 📝 点这里反馈（1分钟）
             </a>
             <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
@@ -1452,29 +1452,7 @@
             document.getElementById('result-e2c').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // ================================================================
-        // 满意度评分（直接点，不用跳转）
-        // ================================================================
-        function rateTool(score) {
-            localStorage.setItem('haitao_rating', score);
-            const resultDiv = document.getElementById('rating-result');
-            const stars = document.querySelectorAll('#satisfaction-stars span');
-
-            stars.forEach((el, index) => {
-                el.style.opacity = (index + 1 <= score) ? '1' : '0.4';
-            });
-
-            const messages = {
-                1: '😞 不满意，哪里不好可以告诉我吗？',
-                2: '😟 一般般，我会继续改进的',
-                3: '🙂 还行，有建议可以告诉我',
-                4: '😊 满意！感谢你的支持 🙏',
-                5: '🥳 非常满意！太开心了 🎉'
-            };
-            resultDiv.innerHTML = messages[score] || '感谢反馈！';
-        }
-
-        function loadRating() {
+               function loadRating() {
             const saved = localStorage.getItem('haitao_rating');
             if (saved) {
                 const score = parseInt(saved);
