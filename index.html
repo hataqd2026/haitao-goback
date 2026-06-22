@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>Haitao & Go Back · 中欧物流比价</title>
+    <style>
+        /* ===== 重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #0b0f19;
+            color: #e2e8f0;
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .app-container {
+            max-width: 900px;
+            width: 100%;
+            background: #141c2b;
+            border-radius: 20px;
+            padding: 20px 18px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            border: 1px solid #1e2a3d;
+        }
+
+        /* ===== 顶部标题 ===== */
+        .app-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .app-header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .app-header p {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 4px;
+            -webkit-text-fill-color: #94a3b8;
+        }
+
+        /* ===== Tab 导航 ===== */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #1a2538;
+            border-radius: 14px;
+            padding: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
+        }
+
+        .tab-btn i {
+            margin-right: 6px;
+        }
+
+        .tab-btn.active {
+            background: #3b82f6;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #25345a;
+            color: #cbd5e1;
+        }
+
+        .tab-btn .sub {
+            font-weight: 400;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* ===== 页面容器 ===== */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== 表单元素 ===== */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 5px;
+        }
+
+        .form-group .hint {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 400;
+            margin-left: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #1e2a3d;
+            background: #0b0f19;
+            color: #e2e8f0;
+            font-size: 16px;
+            transition: border 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2394a3b8' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        .dimension-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .dimension-row input {
+            flex: 1;
+            text-align: center;
+        }
+
+        .dimension-row span {
+            color: #64748b;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .vol-note {
+            background: #1a2538;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 13px;
+            color: #94a3b8;
+            border-left: 3px solid #3b82f6;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .vol-note strong {
+            color: #e2e8f0;
+        }
+
+        /* ===== 物品清单（表格） ===== */
+        .item-list-header {
+            display: grid;
+            grid-template-columns: 1.8fr 1.5fr 0.8fr 0.8fr 0.8fr 0.5fr;
+            gap: 6px;
+            padding: 8px 4px 10px 4px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #94a3b8;
+            border-bottom: 2px solid #1e2a3d;
+            margin-top: 4px;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 1.8fr 1.5fr 0.8fr 0.8fr 0.8fr 0.5fr;
+            gap: 6px;
+            align-items: center;
+            padding: 8px 4px;
+            border-bottom: 1px solid #1a2538;
+        }
+
+        .item-row input,
+        .item-row select {
+            width: 100%;
+            padding: 8px 6px;
+            border-radius: 6px;
+            border: 1px solid #1e2a3d;
+            background: #0b0f19;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        .item-row input:focus,
+        .item-row select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .item-row .btn-del {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 0;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .item-row .btn-del:hover {
+            color: #f87171;
+            transform: scale(1.1);
+        }
+
+        .btn-add-item {
+            background: transparent;
+            border: 1px dashed #3b82f6;
+            color: #60a5fa;
+            padding: 10px 0;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 6px;
+        }
+
+        .btn-add-item:hover {
+            background: #1a2538;
+            border-color: #60a5fa;
+        }
+
+        /* ===== 汇总行 ===== */
+        .summary-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 28px;
+            background: #1a2538;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 14px 0 16px 0;
+            font-size: 15px;
+        }
+
+        .summary-row span {
+            color: #cbd5e1;
+        }
+
+        .summary-row strong {
+            color: #e2e8f0;
+        }
+
+        .summary-row .highlight {
+            color: #60a5fa;
+            font-weight: 700;
+        }
+
+        /* ===== 主按钮 ===== */
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* ===== 结果区域 ===== */
+        .result-area {
+            margin-top: 20px;
+            border-top: 1px solid #1e2a3d;
+            padding-top: 18px;
+        }
+
+        .result-area h3 {
+            font-size: 18px;
+            color: #e2e8f0;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-area h3 i {
+            color: #3b82f6;
+        }
+
+        .result-empty {
+            text-align: center;
+            color: #64748b;
+            padding: 30px 10px;
+            font-size: 15px;
+        }
+
+        /* ===== 分箱卡片 ===== */
+        .split-pkg {
+            background: #1a2538;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .split-pkg .pkg-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .split-pkg .pkg-items {
+            list-style: none;
+            padding: 0;
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .split-pkg .pkg-items li {
+            padding: 3px 0;
+            border-bottom: 1px dashed #1e2a3d;
+        }
+
+        .split-pkg .pkg-footer {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: #94a3b8;
+            padding-top: 6px;
+        }
+
+        .split-pkg .tax-free {
+            color: #34d399;
+            font-weight: 600;
+        }
+
+        .split-pkg .tax-pay {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        /* ===== 比价卡片 ===== */
+        .route-card {
+            background: #1a2538;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #1e2a3d;
+            transition: 0.2s;
+        }
+
+        .route-card:hover {
+            border-color: #3b82f6;
+        }
+
+        .route-card .route-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #e2e8f0;
+            flex: 1 1 180px;
+        }
+
+        .route-card .route-name .badge {
+            font-size: 11px;
+            font-weight: 400;
+            background: #25345a;
+            color: #94a3b8;
+            padding: 2px 10px;
+            border-radius: 20px;
+            margin-left: 8px;
+        }
+
+        .route-card .route-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #60a5fa;
+            flex: 0 0 auto;
+            min-width: 100px;
+            text-align: right;
+        }
+        .route-card .route-price .price-eur {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 400;
+            margin-left: 6px;
+        }
+
+        .route-card .route-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #94a3b8;
+            flex: 1 1 160px;
+            justify-content: flex-end;
+        }
+
+        .route-card .route-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .route-card .route-meta .safe-high {
+            color: #34d399;
+        }
+        .route-card .route-meta .safe-mid {
+            color: #fbbf24;
+        }
+
+        /* ===== 响应式 (手机 & 电脑一致) ===== */
+        @media screen and (max-width: 640px) {
+            .app-container {
+                padding: 14px 12px 20px;
+            }
+
+            .app-header h1 {
+                font-size: 22px;
+            }
+
+            .tab-btn {
+                font-size: 13px;
+                padding: 10px 6px;
+            }
+            .tab-btn .sub {
+                display: none;
+            }
+
+            .item-list-header {
+                font-size: 11px;
+                grid-template-columns: 1.4fr 1.2fr 0.7fr 0.7fr 0.7fr 0.4fr;
+                gap: 4px;
+            }
+
+            .item-row {
+                grid-template-columns: 1.4fr 1.2fr 0.7fr 0.7fr 0.7fr 0.4fr;
+                gap: 4px;
+                padding: 6px 2px;
+            }
+
+            .item-row input,
+            .item-row select {
+                font-size: 13px;
+                padding: 6px 4px;
+            }
+
+            .summary-row {
+                font-size: 13px;
+                padding: 10px 12px;
+                gap: 10px 20px;
+            }
+
+            .btn-primary {
+                font-size: 16px;
+                padding: 14px;
+            }
+
+            .route-card {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .route-card .route-price {
+                text-align: left;
+            }
+            .route-card .route-meta {
+                justify-content: flex-start;
+            }
+
+            .split-pkg .pkg-title {
+                font-size: 14px;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .form-group input,
+            .form-group select {
+                font-size: 15px;
+                padding: 10px 12px;
+            }
+        }
+
+        @media screen and (min-width: 641px) and (max-width: 1024px) {
+            .app-container {
+                padding: 24px 22px 32px;
+            }
+            .item-list-header {
+                grid-template-columns: 1.8fr 1.5fr 0.8fr 0.8fr 0.8fr 0.5fr;
+            }
+            .item-row {
+                grid-template-columns: 1.8fr 1.5fr 0.8fr 0.8fr 0.8fr 0.5fr;
+            }
+        }
+
+        /* ===== 辅助 ===== */
+        .hide {
+            display: none !important;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .alert-box {
+            background: #1a2538;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            color: #fbbf24;
+        }
+
+        .alert-box i {
+            margin-right: 8px;
+        }
+        .alert-box.warning {
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        /* ===== 药品风险弹窗样式 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .modal-overlay.hide {
+            display: none;
+        }
+        .modal-box {
+            background: #1a2538;
+            border-radius: 20px;
+            padding: 28px 24px;
+            max-width: 460px;
+            width: 100%;
+            border: 1px solid #3b82f6;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+        }
+        .modal-box h3 {
+            font-size: 20px;
+            color: #f87171;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-box p {
+            color: #cbd5e1;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .modal-box .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .modal-box .btn-group button {
+            padding: 10px 28px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-box .btn-confirm {
+            background: #3b82f6;
+            color: #fff;
+        }
+        .modal-box .btn-confirm:hover {
+            background: #2563eb;
+        }
+        .modal-box .btn-cancel {
+            background: #1e2a3d;
+            color: #94a3b8;
+        }
+        .modal-box .btn-cancel:hover {
+            background: #2d3a54;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- ===== HEADER ===== -->
+        <header class="app-header">
+            <h1>📦 Haitao & Go Back</h1>
+            <p>中欧双向 · 物流比价 · 智能分箱</p>
+        </header>
+
+        <!-- ===== TAB ===== -->
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tab-c2e" onclick="switchPage('c2e')">
+                <i class="fa-solid fa-arrow-right"></i> 中国 → 欧洲 <span class="sub">寄出</span>
+            </button>
+            <button class="tab-btn" id="tab-e2c" onclick="switchPage('e2c')">
+                <i class="fa-solid fa-arrow-left"></i> 欧洲 → 中国 <span class="sub">寄回</span>
+            </button>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PAGE 1: 中国 → 欧洲                                           -->
+        <!-- ============================================================ -->
+        <div id="page-c2e" class="page active">
+
+            <div class="form-group">
+                <label>📍 目的地国家</label>
+                <select id="c2e-country">
+                    <option value="DK">丹麦 (Denmark)</option>
+                    <option value="DE">德国 (Germany)</option>
+                    <option value="FR">法国 (France)</option>
+                    <option value="GB">英国 (UK)</option>
+                    <option value="NL">荷兰 (Netherlands)</option>
+                    <option value="BE">比利时 (Belgium)</option>
+                    <option value="CH">瑞士 (Switzerland)</option>
+                    <option value="AT">奥地利 (Austria)</option>
+                    <option value="IE">爱尔兰 (Ireland)</option>
+                    <option value="SE">瑞典 (Sweden)</option>
+                    <option value="NO">挪威 (Norway)</option>
+                    <option value="FI">芬兰 (Finland)</option>
+                    <option value="IT">意大利 (Italy)</option>
+                    <option value="ES">西班牙 (Spain)</option>
+                    <option value="PT">葡萄牙 (Portugal)</option>
+                    <option value="PL">波兰 (Poland)</option>
+                    <option value="GR">希腊 (Greece)</option>
+                    <option value="CZ">捷克 (Czech)</option>
+                    <option value="HU">匈牙利 (Hungary)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>⚖️ 实际重量 <span class="hint">(kg)</span></label>
+                <input type="number" id="c2e-weight" value="" placeholder="请输入重量" min="0.1" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label>📦 物品属性</label>
+                <select id="c2e-cargo">
+                    <option value="normal">普通物品（衣服/杂货）</option>
+                    <option value="food">食品/非处方药</option>
+                    <option value="medicine">💊 药品（⚠️高风险，需谨慎）</option>
+                    <option value="battery">电池/数码产品（敏感货）</option>
+                    <option value="luxury">轻奢/品牌鞋包</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>📐 外箱尺寸 <span class="hint">(cm)</span></label>
+                <div class="dimension-row">
+                    <input type="number" id="c2e-l" value="" placeholder="长" min="1">
+                    <span>×</span>
+                    <input type="number" id="c2e-w" value="" placeholder="宽" min="1">
+                    <span>×</span>
+                    <input type="number" id="c2e-h" value="" placeholder="高" min="1">
+                </div>
+            </div>
+
+            <div class="vol-note">
+                <strong>📌 体积重</strong> = (长×宽×高) / 5000。若体积重大于实重，将按体积重计费。
+            </div>
+
+            <button class="btn-primary" onclick="compareC2E()">
+                🔍 一键比价
+            </button>
+
+            <!-- 结果区域 -->
+            <div id="result-c2e" class="result-area">
+                <h3><i class="fa-solid fa-chart-simple"></i> 比价结果</h3>
+                <div id="c2e-results" class="result-empty">
+                    输入参数后，点击“一键比价”查看结果
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PAGE 2: 欧洲 → 中国                                           -->
+        <!-- ============================================================ -->
+        <div id="page-e2c" class="page">
+
+            <div class="form-group">
+                <label>📍 始发国家</label>
+                <select id="e2c-origin">
+                    <option value="DK">丹麦 (Denmark)</option>
+                    <option value="DE">德国 (Germany)</option>
+                    <option value="FR">法国 (France)</option>
+                    <option value="GB">英国 (UK)</option>
+                    <option value="NL">荷兰 (Netherlands)</option>
+                    <option value="BE">比利时 (Belgium)</option>
+                    <option value="CH">瑞士 (Switzerland)</option>
+                    <option value="AT">奥地利 (Austria)</option>
+                    <option value="IE">爱尔兰 (Ireland)</option>
+                    <option value="SE">瑞典 (Sweden)</option>
+                    <option value="NO">挪威 (Norway)</option>
+                    <option value="FI">芬兰 (Finland)</option>
+                    <option value="IT">意大利 (Italy)</option>
+                    <option value="ES">西班牙 (Spain)</option>
+                    <option value="PT">葡萄牙 (Portugal)</option>
+                    <option value="PL">波兰 (Poland)</option>
+                    <option value="GR">希腊 (Greece)</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <label style="font-size:14px;font-weight:600;color:#cbd5e1;display:block;margin-bottom:6px;">📋 物品清单</label>
+                <div class="item-list-header">
+                    <span>物品名</span>
+                    <span>类别</span>
+                    <span>数量</span>
+                    <span>单价(€)</span>
+                    <span>重量(kg)</span>
+                    <span></span>
+                </div>
+                <div id="e2c-items"></div>
+                <button class="btn-add-item" onclick="addItem()">＋ 添加物品</button>
+            </div>
+
+            <div class="summary-row">
+                <span>💰 <strong>总价值：</strong><span id="e2c-total-val" class="highlight">0.00 €</span></span>
+                <span>⚖️ <strong>总重量：</strong><span id="e2c-total-wt" class="highlight">0.00 kg</span></span>
+                <span>🇨🇳 <strong>约合：</strong><span id="e2c-total-cny" class="highlight">0.00 元</span></span>
+            </div>
+
+            <button class="btn-primary" onclick="compareE2C()">
+                🔍 一键比价 &amp; 智能分箱
+            </button>
+
+            <!-- 结果区域 -->
+            <div id="result-e2c" class="result-area">
+                <h3><i class="fa-solid fa-boxes-stacked"></i> 分箱建议 &amp; 比价</h3>
+                <div id="e2c-results" class="result-empty">
+                    添加物品后，点击“一键比价 &amp; 智能分箱”查看结果
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div style="margin-top:28px;padding-top:16px;border-top:1px solid #1e2a3d;text-align:center;font-size:13px;color:#64748b;">
+            © 2026 Haitao &amp; Go Back · 简洁 · 免费 · 中欧物流比价
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 药品风险提示弹窗（隐藏）                                      -->
+    <!-- ============================================================ -->
+    <div id="medicineModal" class="modal-overlay hide">
+        <div class="modal-box">
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> ⚠️ 药品寄送风险提示</h3>
+            <p>
+                根据个人经验，<strong>从中国寄药品到欧洲</strong>风险较高。<br><br>
+                除非您有正规的<strong>药品出口许可证</strong>或相关的<strong>官方批文</strong>，
+                否则包裹很可能被<strong>海关扣留、销毁</strong>，甚至产生罚款。<br><br>
+                <span style="color:#94a3b8;font-size:14px;">建议您提前了解目的地国家的具体规定，谨慎操作。</span>
+            </p>
+            <div class="btn-group">
+                <button class="btn-cancel" onclick="closeMedicineModal()">取消</button>
+                <button class="btn-confirm" onclick="confirmMedicine()">我已了解风险，继续</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Font Awesome (icons)                                          -->
+    <!-- ============================================================ -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script>
+        // ================================================================
+        // DATA
+        // ================================================================
+        const EUR_TO_CNY = 7.8;
+
+        const CARGO_LABELS = {
+            normal: '普通物品',
+            food: '食品/非处方药',
+            medicine: '💊 药品（高风险）',
+            battery: '电池/数码产品',
+            luxury: '轻奢/品牌鞋包'
+        };
+
+        // 税率 (行邮税)
+        const TAX_RATES = {
+            supplements: 0.13,
+            milkpowder: 0.13,
+            cosmetics: 0.20,
+            luxury: 0.20,
+            electronics: 0.13
+        };
+
+        const TAX_LABELS = {
+            supplements: '保健品 (13%)',
+            milkpowder: '婴儿奶粉 (13%)',
+            cosmetics: '化妆品/护肤品 (20%)',
+            luxury: '鞋帽服饰/轻奢 (20%)',
+            electronics: '数码配件 (13%)'
+        };
+
+        // 中国 → 欧洲 模拟渠道 (价格仅作演示，请自行替换真实数据)
+        const CARRIERS_C2E = [{
+            name: '食品特货专线 (空运)',
+            type: '空运特货',
+            baseW: 0.5,
+            baseP: 98,
+            stepP: 35,
+            volDiv: 5000,
+            days: '7-12',
+            safety: 98,
+            allowed: ['normal', 'food', 'medicine']
+        }, {
+            name: '中欧包税空运线',
+            type: '空运包税',
+            baseW: 0.5,
+            baseP: 85,
+            stepP: 28,
+            volDiv: 5000,
+            days: '10-15',
+            safety: 99,
+            allowed: ['normal', 'battery', 'luxury']
+        }, {
+            name: '中欧铁路快捷集运',
+            type: '铁路专线',
+            baseW: 1.0,
+            baseP: 45,
+            stepP: 18,
+            volDiv: 6000,
+            days: '25-35',
+            safety: 95,
+            allowed: ['normal', 'battery']
+        }, {
+            name: '中欧海运大包线',
+            type: '海运专线',
+            baseW: 5.0,
+            baseP: 120,
+            stepP: 12,
+            volDiv: 6000,
+            days: '45-60',
+            safety: 93,
+            allowed: ['normal', 'food', 'battery', 'medicine']
+        }];
+
+        // 欧洲 → 中国 模拟渠道
+        const CARRIERS_E2C = [{
+            name: '华邮免税线 (行邮包税)',
+            type: '华人快递',
+            baseW: 1.0,
+            baseP: 12.0,
+            stepP: 4.5,
+            days: '10-18',
+            safety: 99,
+            tag: '包税'
+        }, {
+            name: '中欧特快航空专线',
+            type: '空运特快',
+            baseW: 1.0,
+            baseP: 22.0,
+            stepP: 7.0,
+            days: '6-9',
+            safety: 96,
+            tag: '最快'
+        }, {
+            name: '欧洲官方邮政小包',
+            type: '官方邮政',
+            baseW: 1.0,
+            baseP: 32.0,
+            stepP: 9.0,
+            days: '12-25',
+            safety: 90,
+            tag: '官方'
+        }];
+
+        // 国家区域系数
+        const REGION_FACTOR = {
+            DK: { name: '北欧', factor: 1.15, offset: 3 },
+            SE: { name: '北欧', factor: 1.15, offset: 3 },
+            NO: { name: '北欧', factor: 1.15, offset: 3 },
+            FI: { name: '北欧', factor: 1.15, offset: 3 },
+            DE: { name: '中欧', factor: 1.00, offset: 0 },
+            FR: { name: '中欧', factor: 1.00, offset: 0 },
+            GB: { name: '中欧', factor: 1.00, offset: 0 },
+            NL: { name: '中欧', factor: 1.00, offset: 0 },
+            BE: { name: '中欧', factor: 1.00, offset: 0 },
+            CH: { name: '中欧', factor: 1.00, offset: 0 },
+            AT: { name: '中欧', factor: 1.00, offset: 0 },
+            IE: { name: '中欧', factor: 1.00, offset: 0 },
+            IT: { name: '南欧', factor: 1.00, offset: 2 },
+            ES: { name: '南欧', factor: 1.00, offset: 2 },
+            PT: { name: '南欧', factor: 1.00, offset: 2 },
+            PL: { name: '东欧', factor: 0.95, offset: 1 },
+            CZ: { name: '东欧', factor: 0.95, offset: 1 },
+            HU: { name: '东欧', factor: 0.95, offset: 1 },
+            GR: { name: '南欧', factor: 1.00, offset: 2 }
+        };
+
+        // ================================================================
+        // STATE
+        // ================================================================
+        let itemIdCounter = 0;
+        let pendingCargo = null; // 用于药品弹窗
+
+        // ================================================================
+        // TAB SWITCH
+        // ================================================================
+        function switchPage(page) {
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            document.getElementById('tab-' + page).classList.add('active');
+        }
+
+        // ================================================================
+        // ITEMS (欧洲 → 中国)
+        // ================================================================
+        function addItem(name = '', category = 'supplements', qty = 1, price = '', weight = '') {
+            const container = document.getElementById('e2c-items');
+            const id = 'item-' + (++itemIdCounter);
+
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.id = id;
+
+            let opts = '';
+            for (const [key, label] of Object.entries(TAX_LABELS)) {
+                opts += `<option value="${key}" ${key === category ? 'selected' : ''}>${label}</option>`;
+            }
+
+            row.innerHTML = `
+                <input type="text" class="e2c-name" placeholder="如：奶粉" value="${name}">
+                <select class="e2c-cat">${opts}</select>
+                <input type="number" class="e2c-qty" value="${qty}" min="1" step="1">
+                <input type="number" class="e2c-price" value="${price}" min="0" step="0.01" placeholder="0.00">
+                <input type="number" class="e2c-wt" value="${weight}" min="0" step="0.1" placeholder="0.0">
+                <button class="btn-del" onclick="removeItem('${id}')"><i class="fa-solid fa-trash-can"></i></button>
+            `;
+
+            container.appendChild(row);
+            updateE2CSummary();
+        }
+
+        function removeItem(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+            updateE2CSummary();
+        }
+
+        function updateE2CSummary() {
+            let totalVal = 0,
+                totalWt = 0;
+            const rows = document.querySelectorAll('.item-row');
+            rows.forEach(row => {
+                const qty = parseFloat(row.querySelector('.e2c-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.e2c-price').value) || 0;
+                const wt = parseFloat(row.querySelector('.e2c-wt').value) || 0;
+                totalVal += qty * price;
+                totalWt += qty * wt;
+            });
+            document.getElementById('e2c-total-val').textContent = totalVal.toFixed(2) + ' €';
+            document.getElementById('e2c-total-wt').textContent = totalWt.toFixed(2) + ' kg';
+            document.getElementById('e2c-total-cny').textContent = (totalVal * EUR_TO_CNY).toFixed(2) + ' 元';
+        }
+
+        // 监听输入变化实时更新
+        document.addEventListener('input', function(e) {
+            if (e.target.closest('.item-row')) {
+                updateE2CSummary();
+            }
+        });
+
+        // ================================================================
+        // 药品弹窗
+        // ================================================================
+        function showMedicineModal(callback) {
+            document.getElementById('medicineModal').classList.remove('hide');
+            // 保存当前要执行的操作
+            window._medicineCallback = callback;
+        }
+
+        function closeMedicineModal() {
+            document.getElementById('medicineModal').classList.add('hide');
+            window._medicineCallback = null;
+        }
+
+        function confirmMedicine() {
+            document.getElementById('medicineModal').classList.add('hide');
+            if (window._medicineCallback) {
+                window._medicineCallback();
+                window._medicineCallback = null;
+            }
+        }
+
+        // ================================================================
+        // COMPARE: 中国 → 欧洲
+        // ================================================================
+        function compareC2E() {
+            const country = document.getElementById('c2e-country').value;
+            const weight = parseFloat(document.getElementById('c2e-weight').value);
+            const cargo = document.getElementById('c2e-cargo').value;
+            const l = parseFloat(document.getElementById('c2e-l').value) || 0;
+            const w = parseFloat(document.getElementById('c2e-w').value) || 0;
+            const h = parseFloat(document.getElementById('c2e-h').value) || 0;
+
+            if (!weight || weight <= 0) {
+                alert('请输入实际重量');
+                return;
+            }
+
+            // ===== 药品风险弹窗 =====
+            if (cargo === 'medicine') {
+                showMedicineModal(function() {
+                    doCompareC2E(country, weight, cargo, l, w, h);
+                });
+                return;
+            }
+
+            doCompareC2E(country, weight, cargo, l, w, h);
+        }
+
+        function doCompareC2E(country, weight, cargo, l, w, h) {
+            const region = REGION_FACTOR[country] || { factor: 1.0, offset: 0 };
+            const volW = (l * w * h) / 5000;
+            const chargeW = Math.max(weight, volW);
+            let volAlert = '';
+            if (volW > weight) {
+                volAlert =
+                    `<div class="alert-box"><i class="fa-solid fa-triangle-exclamation"></i> 体积重 ${volW.toFixed(2)} kg > 实重 ${weight.toFixed(2)} kg，将按体积重计费。</div>`;
+            }
+
+            // 药品附加警告
+            let medWarning = '';
+            if (cargo === 'medicine') {
+                medWarning =
+                    `<div class="alert-box warning"><i class="fa-solid fa-skull"></i> ⚠️ 药品寄送风险较高，若无正规许可证，可能被海关扣留或销毁。</div>`;
+            }
+
+            let html = volAlert + medWarning;
+            let matched = 0;
+
+            CARRIERS_C2E.forEach(c => {
+                if (!c.allowed.includes(cargo)) return;
+                matched++;
+
+                const baseP = c.baseP * region.factor;
+                const stepP = c.stepP * region.factor;
+                let priceRMB = 0;
+                if (chargeW <= c.baseW) {
+                    priceRMB = baseP;
+                } else {
+                    const steps = Math.ceil((chargeW - c.baseW) / c.baseW);
+                    priceRMB = baseP + steps * stepP;
+                }
+                const priceEUR = (priceRMB / EUR_TO_CNY);
+                const days = c.days.split('-').map(d => parseInt(d) + region.offset).join('-');
+
+                html += `
+                    <div class="route-card">
+                        <div class="route-name">
+                            ${c.name}
+                            <span class="badge">${c.type}</span>
+                        </div>
+                        <div class="route-price">
+                            ¥${priceRMB.toFixed(0)}
+                            <span class="price-eur">≈ ${priceEUR.toFixed(1)} €</span>
+                        </div>
+                        <div class="route-meta">
+                            <span>📅 ${days}天</span>
+                            <span class="${c.safety >= 96 ? 'safe-high' : 'safe-mid'}">🛡 ${c.safety}%</span>
+                            <span>⚖️ ${chargeW.toFixed(2)}kg</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (matched === 0) {
+                html += '<div class="result-empty">暂无匹配该物品属性的渠道</div>';
+            }
+
+            document.getElementById('c2e-results').innerHTML = html;
+        }
+
+        // ================================================================
+        // COMPARE: 欧洲 → 中国 (含分箱)
+        // ================================================================
+        function compareE2C() {
+            const rows = document.querySelectorAll('.item-row');
+            if (rows.length === 0) {
+                alert('请至少添加一件物品');
+                return;
+            }
+
+            const origin = document.getElementById('e2c-origin').value;
+            const region = REGION_FACTOR[origin] || { factor: 1.0, offset: 0 };
+
+            // 收集物品
+            const items = [];
+            rows.forEach(row => {
+                const name = row.querySelector('.e2c-name').value.trim() || '未命名';
+                const cat = row.querySelector('.e2c-cat').value;
+                const qty = parseInt(row.querySelector('.e2c-qty').value) || 1;
+                const price = parseFloat(row.querySelector('.e2c-price').value) || 0;
+                const wt = parseFloat(row.querySelector('.e2c-wt').value) || 0.4;
+                for (let i = 0; i < qty; i++) {
+                    items.push({ name, cat, price, wt });
+                }
+            });
+
+            if (items.length === 0) {
+                alert('物品清单无效');
+                return;
+            }
+
+            // ===== 智能分箱 (1000 RMB 限值) =====
+            const LIMIT_RMB = 1000;
+            const packages = [];
+            // 按价值降序
+            items.sort((a, b) => (b.price * EUR_TO_CNY) - (a.price * EUR_TO_CNY));
+
+            items.forEach(item => {
+                let placed = false;
+                for (let pkg of packages) {
+                    const curVal = pkg.items.reduce((s, it) => s + it.price * EUR_TO_CNY, 0);
+                    if (curVal + item.price * EUR_TO_CNY <= LIMIT_RMB) {
+                        pkg.items.push(item);
+                        placed = true;
+                        break;
+                    }
+                }
+                if (!placed) {
+                    packages.push({ id: packages.length + 1, items: [item] });
+                }
+            });
+
+            // ===== 渲染分箱结果 =====
+            let splitHtml = '';
+            let totalTaxEUR = 0;
+            let totalWtEst = 0;
+
+            packages.forEach(pkg => {
+                const valEUR = pkg.items.reduce((s, it) => s + it.price, 0);
+                const valCNY = valEUR * EUR_TO_CNY;
+                let pkgWt = 0.3;
+                pkg.items.forEach(it => { pkgWt += it.wt || 0.4; });
+                totalWtEst += pkgWt;
+
+                // 计算税费
+                let taxCNY = 0;
+                pkg.items.forEach(it => {
+                    const rate = TAX_RATES[it.cat] || 0.13;
+                    taxCNY += it.price * EUR_TO_CNY * rate;
+                });
+                let taxFree = false;
+                if (taxCNY <= 50) { taxFree = true;
+                    taxCNY = 0; }
+                const taxEUR = taxCNY / EUR_TO_CNY;
+                totalTaxEUR += taxEUR;
+
+                const itemLines = pkg.items.map(it =>
+                    `<li>${it.name} — ${it.price.toFixed(2)} € (${TAX_LABELS[it.cat]})</li>`
+                ).join('');
+
+                splitHtml += `
+                    <div class="split-pkg">
+                        <div class="pkg-title">
+                            <span>📦 包裹 #${pkg.id}</span>
+                            <span>💰 ${valEUR.toFixed(2)} € (≈${valCNY.toFixed(0)} 元)</span>
+                        </div>
+                        <ul class="pkg-items">${itemLines}</ul>
+                        <div class="pkg-footer">
+                            <span>⚖️ 预估重量: ${pkgWt.toFixed(1)} kg</span>
+                            <span class="${taxFree ? 'tax-free' : 'tax-pay'}">
+                                ${taxFree ? '✅ 税金低于50元 (免税)' : `💶 行邮税: ¥${taxCNY.toFixed(2)} (≈${taxEUR.toFixed(2)} €)`}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // ===== 比价渠道 (基于总重量和分箱数量) =====
+            let routeHtml = '';
+            const pkgCount = packages.length;
+            const totalWt = totalWtEst;
+
+            CARRIERS_E2C.forEach(c => {
+                const baseP = c.baseP * region.factor;
+                const stepP = c.stepP * region.factor;
+
+                let priceEUR = 0;
+                if (c.type === '官方邮政') {
+                    const wt = totalWt;
+                    if (wt <= c.baseW) priceEUR = baseP;
+                    else {
+                        const steps = Math.ceil((wt - c.baseW) / c.baseW);
+                        priceEUR = baseP + steps * stepP;
+                    }
+                    priceEUR += totalTaxEUR;
+                } else {
+                    const wtPerPkg = totalWt / pkgCount;
+                    let perPkgPrice = 0;
+                    if (wtPerPkg <= c.baseW) perPkgPrice = baseP;
+                    else {
+                        const steps = Math.ceil((wtPerPkg - c.baseW) / c.baseW);
+                        perPkgPrice = baseP + steps * stepP;
+                    }
+                    priceEUR = perPkgPrice * pkgCount;
+                    if (c.type === '华人快递') {
+                        // 包税
+                        priceEUR += 0;
+                    } else {
+                        priceEUR += totalTaxEUR;
+                    }
+                }
+
+                const priceRMB = priceEUR * EUR_TO_CNY;
+                const days = c.days.split('-').map(d => parseInt(d) + region.offset).join('-');
+
+                routeHtml += `
+                    <div class="route-card">
+                        <div class="route-name">
+                            ${c.name}
+                            <span class="badge">${c.tag || c.type}</span>
+                        </div>
+                        <div class="route-price">
+                            ${priceEUR.toFixed(2)} €
+                            <span class="price-eur">≈ ¥${priceRMB.toFixed(0)}</span>
+                        </div>
+                        <div class="route-meta">
+                            <span>📅 ${days}天</span>
+                            <span class="${c.safety >= 96 ? 'safe-high' : 'safe-mid'}">🛡 ${c.safety}%</span>
+                            <span>📦 ${pkgCount}个包裹</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // ===== 合并输出 =====
+            const resultContainer = document.getElementById('e2c-results');
+            resultContainer.innerHTML = `
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:14px;color:#94a3b8;margin-bottom:6px;">📦 共拆分为 <strong style="color:#e2e8f0;">${pkgCount}</strong> 个包裹，总预估重量 <strong style="color:#e2e8f0;">${totalWt.toFixed(1)} kg</strong></div>
+                </div>
+                ${splitHtml}
+                <div style="margin-top:20px;border-top:1px solid #1e2a3d;padding-top:16px;">
+                    <h4 style="color:#e2e8f0;margin-bottom:12px;font-size:16px;">🚚 各渠道比价</h4>
+                    ${routeHtml}
+                </div>
+            `;
+
+            // 滚动到结果区域
+            document.getElementById('result-e2c').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ================================================================
+        // INIT: 默认添加一行空物品 (欧洲→中国)
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            addItem('', 'supplements', 1, '', '');
+        });
+    </script>
+
+</body>
+</html>
