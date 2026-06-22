@@ -998,37 +998,37 @@
         // ITEMS (欧洲 → 中国)
         // ================================================================
         function addItem(name = '', category = 'supplements', qty = 1, price = '', weight = '') {
-            const container = document.getElementById('e2c-items');
-            const id = 'item-' + (++itemIdCounter);
+    const container = document.getElementById('e2c-items');
+    const id = 'item-' + (++itemIdCounter);
 
-            const row = document.createElement('div');
-            row.className = 'item-row';
-            row.id = id;
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.id = id;
 
-            let opts = '';
-            for (const [key, label] of Object.entries(TAX_LABELS)) {
-                opts += `<option value="${key}" ${key === category ? 'selected' : ''}>${label}</option>`;
-            }
+    let opts = '';
+    for (const [key, label] of Object.entries(TAX_LABELS)) {
+        opts += `<option value="${key}" ${key === category ? 'selected' : ''}>${label}</option>`;
+    }
 
-            row.innerHTML = `
-                <input type="text" class="e2c-name" placeholder="如：奶粉" value="${name}">
-                <select class="e2c-cat">${opts}</select>
-                <input type="number" class="e2c-qty" value="${qty}" min="1" step="1">
-                <input type="number" class="e2c-price" value="${price}" min="0" step="0.01" placeholder="0.00">
-                <input type="number" class="e2c-wt" value="${weight}" min="0" step="0.1" placeholder="0.0">
-                <button class="btn-del" onclick="removeItem('${id}')"><i class="fa-solid fa-trash-can"></i></button>
-            `;
+    row.innerHTML = `
+        <input type="text" class="e2c-name" placeholder="如：奶粉" value="${name}">
+        <select class="e2c-cat">${opts}</select>
+        <input type="number" class="e2c-qty" value="${qty}" min="1" step="1">
+        <input type="number" class="e2c-price" value="${price}" min="0" step="0.01" placeholder="0.00">
+        <input type="number" class="e2c-wt" value="${weight}" min="0" step="0.1" placeholder="0.0">
+        <button class="btn-del" onclick="removeItem('${id}')"><i class="fa-solid fa-trash-can"></i></button>
+    `;
 
-            container.appendChild(row);
-            updateE2CSummary();
-        }
-
-        function removeItem(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-            updateE2CSummary();
-        }
-
+    container.appendChild(row);
+    updateE2CSummary();
+    saveItemsToLocal();   // ← 保存到本地
+}
+      function removeItem(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+    updateE2CSummary();
+    saveItemsToLocal();   // ← 保存到本地
+}
         function updateE2CSummary() {
             let totalVal = 0,
                 totalWt = 0;
