@@ -1439,37 +1439,18 @@
 
             document.getElementById('result-e2c').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-
-        // ================================================================
-        // 反馈功能（邮箱已配置为 haitao.goback@foxmail.com）
-        // ================================================================
-        function sendFeedback() {
-            const input = document.getElementById('feedback-input');
-            const msg = input.value.trim();
-            const resultDiv = document.getElementById('feedback-result');
-
-            if (!msg) {
-                resultDiv.innerHTML = '<span style="color: #fbbf24;">⚠️ 写点什么再发送吧～</span>';
-                return;
-            }
-
-            if (msg.length < 2) {
-                resultDiv.innerHTML = '<span style="color: #fbbf24;">😅 多说两句嘛，你的建议很宝贵</span>';
-                return;
-            }
-
-            resultDiv.innerHTML = '<span style="color: #94a3b8;">⏳ 发送中...</span>';
-
-            const email = 'haitao.goback@foxmail.com';
-            const subject = encodeURIComponent('Haitao & Go Back 用户反馈');
-            const body = encodeURIComponent('用户留言：\n' + msg + '\n\n—— 来自您的工具用户');
-
-            setTimeout(() => {
-                window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-                resultDiv.innerHTML = '<span style="color: #34d399;">✅ 已打开邮件客户端，点击发送即可！</span>';
-            }, 300);
-        }
-
+      <!-- ===== 反馈按钮（腾讯问卷版） ===== -->
+<div style="background: #1a2538; border-radius: 16px; padding: 18px 20px; margin-top: 24px; border: 1px solid #1e2a3d; text-align: center;">
+    <div style="font-size: 14px; color: #94a3b8; margin-bottom: 12px;">
+        💬 觉得工具好用吗？有什么建议？
+    </div>
+    <a href=" " target="_blank" style="display: inline-block; padding: 12px 40px; background: #3b82f6; color: #fff; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: 0.2s;">
+        📝 点这里反馈（1分钟）
+    </a >
+    <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
+        ⏱ 匿名填写 · 你的建议会让工具更好用
+    </div>
+</div>
         // ================================================================
         // INIT
         // ================================================================
